@@ -16,8 +16,9 @@ class DesignerAprendizado:
         self.modelo = modelo
         self.temperatura = temperatura
     
-    def gerar_experiencia_aprendizado(self, tema, publico, duracao, objetivos=None):
-        prompt = self._criar_prompt(tema, publico, duracao, objetivos)
+    def gerar_experiencia_aprendizado(self, tema, publico, duracao, objetivos=None, 
+                                    contexto=None, simplicidade="medio"):
+        prompt = self._criar_prompt(tema, publico, duracao, objetivos, contexto, simplicidade)
         
         with Progress(
             SpinnerColumn(),
@@ -29,7 +30,7 @@ class DesignerAprendizado:
             resposta = self.cliente.chat.completions.create(
                 model=self.modelo,
                 messages=[
-                    {"role": "system", "content": "Você é um especialista em educação inovadora e design de aprendizagem."},
+                    {"role": "system", "content": "Você é um especialista em educação inovadora e design de aprendizagem, com foco em criar experiências adaptáveis a diferentes contextos educacionais e que priorizam eficiência e simplicidade."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=self.temperatura,
@@ -38,7 +39,13 @@ class DesignerAprendizado:
         
         return resposta.choices[0].message.content
     
-    def _criar_prompt(self, tema, publico, duracao, objetivos=None):
+    def _criar_prompt(self, tema, publico, duracao, objetivos=None, contexto=None, simplicidade="medio"):
+        contexto_info = f"""
+        Contexto específico da experiência:
+        - Contexto educacional: {contexto if contexto else 'Não especificado'}
+        - Nível de simplicidade: {simplicidade}
+        """
+        
         return f"""
         Como especialista em pedagogia inovadora e design educacional, crie uma 
         experiência de aprendizado revolucionária para ensinar '{tema}' para {publico} 
@@ -46,40 +53,78 @@ class DesignerAprendizado:
         
         {f"Os objetivos de aprendizado principais são: {objetivos}" if objetivos else ""}
         
-        Por favor, forneça um plano abrangente com as seguintes seções:
+        {contexto_info}
+        
+        IMPORTANTE: Priorize atividades simples, rápidas e de alto impacto. Evite atividades 
+        complexas que requerem muita preparação ou recursos. Foque em engajamento rápido 
+        e eficiente, usando recursos mínimos para máximo aprendizado.
 
-        ## VISÃO GERAL DO CONCEITO
-        - Filosofia de ensino central para esta experiência
-        - O insight transformador ou "momento aha" que você deseja criar
-        - Como esta abordagem difere dos métodos tradicionais
+        Considere os seguintes aspectos críticos ao criar a experiência:
 
-        ## METODOLOGIA INOVADORA
-        - Técnicas de ensino não convencionais específicas para este tema
-        - Integração de storytelling, aprendizado baseado em problemas ou elementos de gamificação
-        - Momentos de surpresa e descoberta incorporados na jornada de aprendizado
+        1. SIMPLIFICAÇÃO E EFICIÊNCIA
+        - Atividades que podem ser implementadas rapidamente (5-15 minutos)
+        - Uso de materiais simples e facilmente acessíveis
+        - Preparação mínima necessária
+        - Adaptações para diferentes níveis de recursos
+        - Estratégias para maximizar o tempo de aula
 
-        ## ESTRATÉGIA DE ENGAJAMENTO
-        - Atividades práticas únicas que reforçam a compreensão
-        - Elementos colaborativos que melhoram o aprendizado
-        - Uso criativo de tecnologia ou materiais do cotidiano
-        - Formas de estimular a curiosidade e motivação intrínseca
+        2. ENGAGAMENTO RÁPIDO
+        - Dinâmicas curtas e impactantes
+        - Discussões rápidas em pequenos grupos
+        - Atividades que envolvam toda a turma de forma eficiente
+        - Jogos e exercícios que podem ser iniciados imediatamente
+        - Momentos de reflexão rápida e compartilhamento
 
-        ## AVALIAÇÃO ALTERNATIVA
-        - Métodos de avaliação não tradicionais que medem a compreensão real
-        - Como a avaliação é incorporada naturalmente na experiência de aprendizado
-        - Oportunidades para reflexão e metacognição
+        3. DIVISÃO EM ETAPAS MENORES
+        - Projetos divididos em tarefas curtas e gerenciáveis
+        - Atividades que podem ser completadas em uma única aula
+        - Progressão gradual do aprendizado
+        - Checkpoints rápidos de compreensão
+        - Feedback contínuo e imediato
 
-        ## ESTRUTURA DE ADAPTABILIDADE
-        - Abordagens para diferentes estilos e necessidades de aprendizado
-        - Como personalizar a experiência para diversos backgrounds
-        - Estratégias para escalar para cima ou para baixo com base em recursos e tamanho da turma
+        4. RECURSOS SIMPLES E EFICIENTES
+        - Uso criativo de materiais básicos (papel, canetas, objetos recicláveis)
+        - Alternativas de baixo custo para recursos tecnológicos
+        - Ferramentas digitais simples e acessíveis
+        - Materiais que podem ser reutilizados
+        - Soluções que funcionam com infraestrutura limitada
 
-        ## GUIA DE IMPLEMENTAÇÃO
-        - Materiais e preparação necessários
-        - Guia de facilitação passo a passo
-        - Desafios potenciais e soluções
-        - Atividades de acompanhamento para reforçar o aprendizado
+        5. AVALIAÇÃO FORMATIVA RÁPIDA
+        - Métodos de avaliação que não consomem muito tempo
+        - Feedback imediato durante as atividades
+        - Autoavaliação e avaliação entre pares
+        - Observações rápidas do professor
+        - Checkpoints de compreensão integrados às atividades
 
-        Seja ousado, criativo e prático. Concentre-se em abordagens que criem uma compreensão 
-        profunda e conexão emocional com o material, em vez de aprendizado mecânico.
+        6. GESTÃO DO TEMPO
+        - Cronograma detalhado com tempos específicos
+        - Atividades com duração adequada
+        - Alternativas para ajuste de tempo
+        - Estratégias para lidar com imprevistos
+        - Priorização de atividades essenciais
+
+        7. ADAPTABILIDADE
+        - Opções para diferentes tamanhos de turma
+        - Alternativas para diferentes níveis de recursos
+        - Adaptações para necessidades especiais
+        - Flexibilidade na implementação
+        - Escalabilidade para diferentes contextos
+
+        8. IMPLEMENTAÇÃO PRÁTICA
+        - Passo a passo claro e objetivo
+        - Lista mínima de materiais necessários
+        - Soluções para desafios comuns
+        - Dicas para gestão de tempo
+        - Estratégias de backup para imprevistos
+
+        Seja prático, criativo e sensível ao contexto. Priorize abordagens que:
+        - Sejam rápidas de implementar
+        - Requeiram preparação mínima
+        - Mantenham simplicidade {simplicidade}
+        - Usem recursos simples e acessíveis
+        - Maximizem o engajamento em pouco tempo
+        - Facilitem a gestão do tempo
+        - Sejam adaptáveis a diferentes contextos
+        - Promovam feedback contínuo e eficiente
+        - Mantenham o foco no aprendizado essencial
         """ 

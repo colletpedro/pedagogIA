@@ -54,6 +54,17 @@ class CLI:
             type=float,
             default=0.7
         )
+        self.parser.add_argument(
+            "--contexto", "-c",
+            help="Contexto educacional (ex: 'escola pública urbana', 'comunidade rural', 'recursos limitados')",
+            default=None
+        )
+        self.parser.add_argument(
+            "--simplicidade", "-s",
+            help="Nível de simplicidade das atividades (baixo/médio/alto)",
+            choices=["baixo", "medio", "alto"],
+            default="medio"
+        )
     
     def executar(self):
         args = self.parser.parse_args()
@@ -70,7 +81,9 @@ class CLI:
                 args.tema, 
                 args.publico, 
                 args.duracao,
-                objetivos
+                objetivos,
+                args.simplicidade,
+                args.contexto
             )
             
             self._exibir_experiencia(experiencia, args.tema)
@@ -99,11 +112,24 @@ class CLI:
         objetivos_input = console.input("\n[bold]Quais são seus principais objetivos de aprendizado? [/] (separados por vírgula, ou pressione Enter para pular): ")
         objetivos = objetivos_input.split(",") if objetivos_input.strip() else None
         
+        contexto = console.input("\n[bold]Qual o contexto educacional? [/] (ex: 'escola pública urbana', 'comunidade rural', 'recursos limitados'): ")
+        
+        simplicidade = console.input("\n[bold]Qual o nível de simplicidade das atividades? [/] (baixo/médio/alto): ").lower()
+        while simplicidade not in ["baixo", "medio", "alto"]:
+            simplicidade = console.input("\n[bold]Por favor, escolha entre baixo, médio ou alto: [/]").lower()
+        
         try:
             designer = DesignerAprendizado()
             
             with console.status("[bold green]Criando sua experiência de aprendizado inovadora...", spinner="dots"):
-                experiencia = designer.gerar_experiencia_aprendizado(tema, publico, duracao, objetivos)
+                experiencia = designer.gerar_experiencia_aprendizado(
+                    tema=tema,
+                    publico=publico,
+                    duracao=duracao,
+                    objetivos=objetivos,
+                    contexto=contexto,
+                    simplicidade=simplicidade
+                )
             
             console.print("\n")
             self._exibir_experiencia(experiencia, tema)
@@ -124,23 +150,19 @@ class CLI:
                           expand=False))
     
     def _salvar_experiencia(self, experiencia, nome_arquivo):
-        """Salva a experiência em arquivos markdown e pdf."""
+        """Salva a experiência em arquivo markdown."""
         # Remove extensão se fornecida
         nome_base = os.path.splitext(nome_arquivo)[0]
         
-        # Gera nomes de arquivo baseados no nome fornecido
+        # Gera nome do arquivo
         arquivo_md = os.path.join(self.output_dir, f"{nome_base}.md")
-        arquivo_pdf = os.path.join(self.output_dir, f"{nome_base}.pdf")
         
         # Salva o arquivo markdown
         with open(arquivo_md, "w", encoding="utf-8") as f:
             f.write(experiencia)
         
-        # TODO: Implementar conversão para PDF
-        # Por enquanto, apenas informa que o PDF será gerado em breve
         console.print(f"\n[green]Experiência de aprendizado salva em:[/]")
         console.print(f"[blue]Markdown:[/] {arquivo_md}")
-        console.print(f"[yellow]Nota: A versão PDF será gerada em breve.[/]")
         console.print(f"""[yellow]Para visualizar corretamente o arquivo Markdown:
 1. Use um editor que suporte Markdown (VS Code, Typora, etc.)
 2. Ou converta para PDF/Word usando ferramentas online como Pandoc ou Markdown to PDF[/]""") 
