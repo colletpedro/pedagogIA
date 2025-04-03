@@ -148,6 +148,45 @@ class CLI:
         console.print(Panel(Markdown(experiencia), 
                           title=f"Experiência de Aprendizado Inovadora: {tema}",
                           expand=False))
+        
+        # Pergunta se o usuário gostaria de fornecer feedback
+        feedback_opcao = console.input("\n[bold]Gostaria de fornecer feedback para melhorar esta experiência? [/](s/n): ").lower()
+        
+        if feedback_opcao == 's':
+            return self._solicitar_feedback(experiencia, tema)
+        return experiencia
+    
+    def _solicitar_feedback(self, experiencia_original, tema):
+        """Solicita feedback do usuário e gera uma nova versão da experiência."""
+        console.print("\n[bold cyan]Por favor, forneça seu feedback:[/]")
+        console.print("(Exemplos: 'mais atividades práticas', 'menos teoria', 'mais exemplos', 'mais interativo')")
+        feedback = console.input("\n[bold]Seu feedback: [/]")
+        
+        if not feedback.strip():
+            return experiencia_original
+            
+        try:
+            designer = DesignerAprendizado()
+            
+            with console.status("[bold green]Gerando uma versão melhorada da experiência...", spinner="dots"):
+                experiencia_melhorada = designer.gerar_experiencia_aprendizado(
+                    tema=tema,
+                    publico="estudantes",  # Mantém o público original
+                    duracao="90 minutos",  # Mantém a duração original
+                    feedback=feedback,
+                    experiencia_original=experiencia_original
+                )
+            
+            console.print("\n[bold green]Versão melhorada gerada com sucesso![/]")
+            console.print(Panel(Markdown(experiencia_melhorada), 
+                              title=f"Experiência de Aprendizado Melhorada: {tema}",
+                              expand=False))
+            
+            return experiencia_melhorada
+                
+        except Exception as e:
+            console.print(f"[bold red]Erro ao gerar versão melhorada:[/] {str(e)}")
+            return experiencia_original
     
     def _salvar_experiencia(self, experiencia, nome_arquivo):
         """Salva a experiência em arquivo markdown."""

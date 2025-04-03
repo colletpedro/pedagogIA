@@ -17,12 +17,61 @@ class DesignerAprendizado:
         self.temperatura = temperatura
     
     def gerar_experiencia_aprendizado(self, tema, publico, duracao, objetivos=None, 
-                                    contexto=None, simplicidade="medio"):
+                                    contexto=None, simplicidade="medio", feedback=None,
+                                    experiencia_original=None):
+        if feedback and experiencia_original:
+            return self._gerar_experiencia_melhorada(tema, publico, duracao, feedback, experiencia_original)
+            
         prompt = self._criar_prompt(tema, publico, duracao, objetivos, contexto, simplicidade)
         
         with Progress(
             SpinnerColumn(),
             TextColumn("[bold blue]Gerando experiência de aprendizado inovadora...[/]"),
+            transient=True,
+        ) as progress:
+            progress.add_task("gerando", total=None)
+            
+            resposta = self.cliente.chat.completions.create(
+                model=self.modelo,
+                messages=[
+                    {"role": "system", "content": "Você é um especialista em educação inovadora e design de aprendizagem, com foco em criar experiências adaptáveis a diferentes contextos educacionais e que priorizam eficiência e simplicidade."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=self.temperatura,
+                max_tokens=4000
+            )
+        
+        return resposta.choices[0].message.content
+    
+    def _gerar_experiencia_melhorada(self, tema, publico, duracao, feedback, experiencia_original):
+        """Gera uma versão melhorada da experiência baseada no feedback do usuário."""
+        prompt = f"""
+        Como especialista em pedagogia inovadora e design educacional, você recebeu o seguinte feedback 
+        sobre uma experiência de aprendizado para o tema '{tema}':
+        
+        Feedback do usuário: {feedback}
+        
+        Aqui está a experiência original:
+        {experiencia_original}
+        
+        Por favor, crie uma versão melhorada desta experiência de aprendizado que:
+        1. Mantenha a duração de {duracao}
+        2. Mantenha o público-alvo de {publico}
+        3. Incorpore o feedback fornecido
+        4. Mantenha a estrutura clara e organizada
+        5. Priorize atividades práticas e engajadoras
+        6. Mantenha a simplicidade e eficiência
+        
+        IMPORTANTE: 
+        - Mantenha o mesmo formato markdown da experiência original
+        - Não remova seções importantes da experiência original
+        - Adicione ou modifique elementos conforme solicitado no feedback
+        - Mantenha o foco na eficiência e simplicidade
+        """
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[bold blue]Gerando versão melhorada da experiência...[/]"),
             transient=True,
         ) as progress:
             progress.add_task("gerando", total=None)
